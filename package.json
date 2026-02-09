@@ -1,20 +1,84 @@
-{
-  "name": "kc-discord-access-bot",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {
-    "discord.js": "^14.14.1"
-  }
-  client.once('ready', () => {
-  client.user.setPresence({
-    activities: [{ name: 'Assigning KC26 roles' }],
-    status: 'online',
-  });
-});
+// index.js (discord.js v14)
+// ✅ Copy/paste this whole file
+// ✅ Requires env var: DISCORD_TOKEN
+// ✅ Also make sure in Discord Dev Portal > Bot you ENABLE:
+//    - Presence Intent
+//    - Server Members Intent (if you do role/member stuff)
+//    - Message Content Intent (if you read message text)
 
+import 'dotenv/config';
+import {
+  Client,
+  GatewayIntentBits,
+  Partials,
+  Events,
+  ActivityType,
+} from 'discord.js';
+
+const token = process.env.DISCORD_TOKEN;
+
+// Hard fail early if token missing / whitespace
+if (!token || typeof token !== 'string' || !token.trim()) {
+  console.error('❌ DISCORD_TOKEN is missing or empty. Check your environment variable.');
+  process.exit(1);
 }
 
-  
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,     // needed for role assignment / member lookup
+    GatewayIntentBits.GuildMessages,    // only if you listen in channels
+    GatewayIntentBits.MessageContent,   // only if you read message text
+    GatewayIntentBits.DirectMessages,   // only if you use DMs
+    GatewayIntentBits.GuildPresences,   // presence intent (must also be enabled in Dev Portal)
+  ],
+  partials: [Partials.Channel], // needed for DMs in many setups
+});
+
+// ✅ Use clientReady (avoids the deprecation warning and is future-proof)
+client.once(Events.ClientReady, (c) => {
+  console.log(`✅ Bot logged in as ${c.user.tag}`);
+
+  // Force an explicit presence so Discord shows it more reliably
+  try {
+    c.user.setPresence({
+      status: 'online',
+      activities: [
+        {
+          name: 'KC26 role access',
+          type: ActivityType.Watching,
+        },
+      ],
+    });
+    console.log('✅ Presence set (online + activity).');
+  } catch (e) {
+    console.error('⚠️ Could not set presence:', e);
+  }
+});
+
+// Optional: quick test command in any server channel the bot can read
+client.on(Events.MessageCreate, async (message) => {
+  if (message.author.bot) return;
+
+  // Change this trigger if you want
+  if (message.content?.trim().toLowerCase() === '!ping') {
+    await message.reply('pong ✅');
+  }
+});
+
+// Useful error logs
+client.on(Events.Error, (err) => console.error('Client error:', err));
+client.on(Events.Warn, (info) => console.warn('Client warn:', info));
+
+// Keep a log if Discord reconnects / drops
+client.on(Events.ShardDisconnect, (event, id) => {
+  console.warn(`Shard ${id} disconnected:`, event?.reason ?? event);
+});
+client.on(Events.ShardReconnecting, (id) => {
+  console.warn(`Shard ${id} reconnecting...`);
+});
+
+client.login(token.trim()).catch((err) => {
+  console.error('❌ Login failed:', err);
+  process.exit(1);
+});
