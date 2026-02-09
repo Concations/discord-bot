@@ -3,7 +3,7 @@ import { Client, GatewayIntentBits, Partials, Events } from "discord.js";
 // ================= CONFIG =================
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 
-const GUILD_ID = "1231682810776129646";
+const GUILD_ID = "1018115455443013672";
 
 const ATTENDEE_ROLE_ID = "1469828678514118716";
 const PRESENTER_ROLE_ID = "1469831189786530007";
