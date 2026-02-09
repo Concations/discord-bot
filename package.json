@@ -8,6 +8,13 @@
   "dependencies": {
     "discord.js": "^14.14.1"
   }
+  client.once('ready', () => {
+  client.user.setPresence({
+    activities: [{ name: 'Assigning KC26 roles' }],
+    status: 'online',
+  });
+});
+
 }
 
   
