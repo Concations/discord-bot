@@ -1,4 +1,5 @@
-import { Client, GatewayIntentBits, Partials } from "discord.js";
+import 'dotenv/config';
+import { Client, GatewayIntentBits, Partials, Events } from "discord.js";
 
 // ===== CONFIG =====
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
@@ -11,6 +12,11 @@ const ATTENDEE_CODE = "KC26-Attendee!";
 const PRESENTER_CODE = "KC26-Presenter!";
 // ==================
 
+if (!DISCORD_TOKEN) {
+  console.error("❌ DISCORD_TOKEN is missing");
+  process.exit(1);
+}
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -22,11 +28,11 @@ const client = new Client({
   partials: [Partials.Channel]
 });
 
-client.once("ready", () => {
-  console.log(`Bot logged in as ${client.user.tag}`);
+client.once(Events.ClientReady, () => {
+  console.log(`✅ Bot logged in as ${client.user.tag}`);
 });
 
-client.on("messageCreate", async (message) => {
+client.on(Events.MessageCreate, async (message) => {
   // Ignore bots
   if (message.author.bot) return;
 
@@ -34,7 +40,7 @@ client.on("messageCreate", async (message) => {
   if (message.guild) return;
 
   const code = message.content.trim();
-  console.log(`DM received from ${message.author.tag}: ${code}`);
+  console.log(`📩 DM received from ${message.author.tag}: ${code}`);
 
   try {
     const guild = await client.guilds.fetch(GUILD_ID);
@@ -56,7 +62,7 @@ client.on("messageCreate", async (message) => {
     await message.reply("❌ Invalid code. Please double-check and try again.");
 
   } catch (err) {
-    console.error("Role assignment error:", err);
+    console.error("❌ Role assignment error:", err);
     await message.reply(
       "⚠️ I couldn’t add your role. Make sure:\n" +
       "• You are already in the server\n" +
