@@ -1,22 +1,27 @@
-console.log("🔥🔥🔥 NEW INDEX FILE LOADED 🔥🔥🔥");
 import 'dotenv/config';
 import { Client, GatewayIntentBits, Partials, Events } from "discord.js";
 
-// ===== CONFIG =====
+/* ========= CONFIG ========= */
+
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const GUILD_ID = "1231682810776129646";
 
+// Roles
 const ATTENDEE_ROLE_ID = "1469828678514118716";
 const PRESENTER_ROLE_ID = "1469831189786530007";
 
+// Codes
 const ATTENDEE_CODE = "KC26-Attendee!";
 const PRESENTER_CODE = "KC26-Presenter!";
-// ==================
+
+/* ========================== */
 
 if (!DISCORD_TOKEN) {
   console.error("❌ DISCORD_TOKEN is missing");
   process.exit(1);
 }
+
+console.log("🔥 BOT FILE LOADED");
 
 const client = new Client({
   intents: [
@@ -34,14 +39,15 @@ client.once(Events.ClientReady, () => {
 });
 
 client.on(Events.MessageCreate, async (message) => {
-  // Ignore bots
+  console.log("📩 MESSAGE EVENT FIRED");
+
   if (message.author.bot) return;
 
-  // ONLY respond to DMs
+  // DM only
   if (message.guild) return;
 
   const code = message.content.trim();
-  console.log(`📩 DM received from ${message.author.tag}: ${code}`);
+  console.log(`📩 DM from ${message.author.tag}: ${code}`);
 
   try {
     const guild = await client.guilds.fetch(GUILD_ID);
@@ -60,14 +66,14 @@ client.on(Events.MessageCreate, async (message) => {
       return;
     }
 
-    await message.reply("❌ Invalid code. Please double-check and try again.");
+    await message.reply("❌ Invalid code. Please check and try again.");
 
   } catch (err) {
     console.error("❌ Role assignment error:", err);
     await message.reply(
-      "⚠️ I couldn’t add your role. Make sure:\n" +
-      "• You are already in the server\n" +
-      "• The code is correct\n" +
+      "⚠️ I couldn’t add your role.\n" +
+      "• Make sure you are already in the server\n" +
+      "• Make sure the code is correct\n" +
       "• Try again in a moment"
     );
   }
