@@ -1,3 +1,4 @@
+console.log("🔥🔥🔥 NEW INDEX FILE LOADED 🔥🔥🔥");
 import 'dotenv/config';
 import { Client, GatewayIntentBits, Partials, Events } from "discord.js";
 
